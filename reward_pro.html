@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Reward Pro</title>
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #00c853, #0091ea);
+    color: #fff;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+  .container {
+    max-width: 420px;
+    margin: 20px auto;
+    background: rgba(255,255,255,0.97);
+    color: #111;
+    border-radius: 16px;
+    padding: 24px 18px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    position: relative;
+  }
+  h2 { text-align:center; color:#006600; margin-bottom:20px; }
+  .points {
+    font-size: 28px;
+    font-weight:bold;
+    text-align:center;
+    color:#006600;
+    margin: 20px 0;
+  }
+  button {
+    width:100%;
+    padding:14px;
+    margin:10px 0;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+  }
+  .btn-green { background:#00c853; color:white; }
+  .btn-green:active { background:#00b140; }
+  .btn-red   { background:#ff1744; color:white; }
+  .btn-red:active   { background:#d50000; }
+  .btn-gray  { background:#90a4ae; color:white; }
+  input {
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:8px;
+    font-size:16px;
+  }
+  .hidden { display:none !important; }
+  #msg {
+    text-align:center;
+    color:#006600;
+    min-height:24px;
+    margin:12px 0;
+    font-weight:500;
+  }
+  .bottom-bar {
+    position:fixed;
+    bottom:0;
+    left:0; right:0;
+    background:white;
+    display:flex;
+    box-shadow:0 -3px 12px rgba(0,0,0,0.15);
+    padding:10px 0;
+  }
+  .bottom-btn {
+    flex:1;
+    background:none;
+    border:none;
+    font-size:13px;
+    color:#555;
+    padding:6px 4px;
+  }
+  .bottom-btn.active {
+    color:#00c853;
+    font-weight:bold;
+  }
+  .card {
+    background:#f8f9fa;
+    border-radius:12px;
+    padding:16px;
+    margin:16px 0;
+  }
+  .pw-container {
+    position: relative;
+  }
+  .show-pw {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+    user-select: none;
+    color: #555;
+  }
+  .settings-option {
+    display:flex; 
+    justify-content:space-between; 
+    align-items:center; 
+    padding:12px 0; 
+    border-bottom:1px solid #eee;
+  }
+
+  .support-icon {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #006600;
+    background: rgba(255,255,255,0.75);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+    z-index: 10;
+    transition: all 0.15s;
+  }
+  .support-icon:active {
+    background: rgba(255,255,255,1);
+    transform: scale(0.94);
+  }
+
+  #support-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: #ece5dd;
+    display: none;
+    flex-direction: column;
+  }
+  .support-header {
+    background:#075e54;
+    color:white;
+    padding:16px;
+    font-weight:600;
+    font-size:16px;
+    display:flex;
+    align-items:center;
+    box-shadow:0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+  }
+  .support-back-btn {
+    position: absolute;
+    left: 16px;
+    font-size: 20px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+  }
+  .support-title {
+    flex: 1;
+    text-align: center;
+  }
+  .support-chat {
+    flex:1;
+    overflow-y:auto;
+    padding:10px;
+    display:flex;
+    flex-direction:column;
+    scroll-behavior:smooth;
+  }
+  .bot-msg{
+    background:#ffffff;
+    color:#303030;
+    padding:10px 14px;
+    border-radius:18px;
+    margin-bottom:8px;
+    max-width:70%;
+    align-self:flex-start;
+    box-shadow:0 1px 2px rgba(0,0,0,0.1);
+    word-wrap:break-word;
+    font-size:14px;
+  }
+  .user-msg{
+    background:#dcf8c6;
+    color:#303030;
+    padding:10px 14px;
+    border-radius:18px;
+    margin-bottom:8px;
+    max-width:70%;
+    align-self:flex-end;
+    box-shadow:0 1px 2px rgba(0,0,0,0.1);
+    word-wrap:break-word;
+    font-size:14px;
+  }
+  .menu button{
+    width:100%;
+    padding:10px;
+    margin-top:6px;
+    border:none;
+    border-radius:18px;
+    background:#ece5dd;
+    color:#075e54;
+    font-weight:600;
+    cursor:pointer;
+    text-align:left;
+    font-size:14px;
+  }
+  .input-bar{
+    border-top:1px solid #ddd;
+    padding:6px;
+    background:#f0f0f0;
+  }
+  .input-box{
+    display:flex;
+    background:white;
+    border-radius:25px;
+    overflow:hidden;
+    padding:0 6px;
+  }
+  .support-input{
+    flex:1;
+    border:none;
+    padding:12px 10px;
+    background:transparent;
+    outline:none;
+    font-size:14px;
+  }
+  .send{
+    background:#25d366;
+    color:white;
+    border:none;
+    padding:0 16px;
+    margin-left:4px;
+    border-radius:50%;
+    font-weight:bold;
+    cursor:pointer;
+  }
+  .typing{
+    display:flex;
+    gap:4px;
+    padding:10px 14px;
+    border-radius:18px;
+    background:#ffffff;
+    align-self:flex-start;
+    margin-bottom:8px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.1);
+  }
+  .typing span{
+    width:6px;
+    height:6px;
+    background:#303030;
+    border-radius:50%;
+    animation:blink 1.4s infinite;
+  }
+  .typing span:nth-child(2){animation-delay:.2s;}
+  .typing span:nth-child(3){animation-delay:.4s;}
+  @keyframes blink{
+    0%{opacity:.2}
+    20%{opacity:1}
+    100%{opacity:.2}
+  }
+  .disabled{
+    pointer-events:none;
+    opacity:0.4;
+  }
+
+  #loading {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #00c853, #0091ea);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.4s ease;
+  }
+  #loading.fade-out {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .loading-title {
+    font-size: 48px;
+    font-weight: bold;
+    color: gold;
+    text-shadow: 0 4px 10px rgba(0,0,0,0.4);
+    margin-bottom: 12px;
+  }
+  .loading-emoji {
+    font-size: 60px;
+  }
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="loading-title">REWARD PRO</div>
+  <div class="loading-emoji">🎁</div>
+</div>
+
+<div id="support-overlay">
+  <div class="support-header">
+    <button class="support-back-btn" onclick="closeSupport()">←</button>
+    <div class="support-title">Reward Pro Support</div>
+  </div>
+  <div class="support-chat" id="support-chat"></div>
+  <div class="input-bar">
+    <div class="input-box">
+      <input id="support-input" class="support-input" placeholder="Type a message..." />
+      <button class="send" onclick="sendSupportMessage()">➤</button>
+    </div>
+  </div>
+</div>
+
+<div class="container hidden" id="login">
+  <h2>🎁 Reward Pro</h2>
+  
+  <input id="phone" type="tel" inputmode="numeric" pattern="[0-9]{11}" maxlength="11" 
+         placeholder="Phone number (11 digits)" autocomplete="tel" required>
+
+  <input id="username" placeholder="Username" autocomplete="off">
+
+  <div class="pw-container">
+    <input id="password" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4"
+           placeholder="Password (4 digits)" autocomplete="off" required>
+    <span class="show-pw" onclick="toggleShowPw()">👁️</span>
+  </div>
+
+  <input id="referral" placeholder="Referral code (optional)" autocomplete="off">
+  <input id="promo" placeholder="Promo code (optional)" autocomplete="off">
+
+  <button class="btn-green" onclick="handleLogin()">Login / Register</button>
+</div>
+
+<div class="container hidden" id="dashboard">
+  <h2>Dashboard</h2>
+  <div class="support-icon" onclick="openSupport()">💬</div>
+
+  <div class="points">POINTS: <span id="pointsDisplay">0</span></div>
+
+  <div class="card">
+    <button class="btn-green" onclick="claimDaily()">Daily Bonus (+100)</button>
+    <button class="btn-green" onclick="watchAdTask()">Watch Ad Task</button>
+  </div>
+
+  <div class="card">
+    <button class="btn-green" onclick="referEarn()">Referral Code</button>
+    <button class="btn-gray" onclick="enterPromo()">Promo Code</button>
+  </div>
+
+  <div id="msg"></div>
+
+  <div class="bottom-bar">
+    <button class="bottom-btn active" onclick="show('dashboard')">Home</button>
+    <button class="bottom-btn" onclick="show('redeem')">Redeem</button>
+    <button class="bottom-btn" onclick="show('leaderboard')">Leaderboard</button>
+    <button class="bottom-btn" onclick="show('settings')">Settings</button>
+  </div>
+</div>
+
+<div class="container hidden" id="redeem">
+  <h2>Redeem Rewards</h2>
+  <div class="card">
+    <button class="btn-green" onclick="tryRedeem(10000)">₦100 (10,000 pts)</button>
+    <button class="btn-green" onclick="tryRedeem(30000)">₦500 (30,000 pts)</button>
+  </div>
+  <div class="bottom-bar">
+    <button class="bottom-btn" onclick="show('dashboard')">Home</button>
+    <button class="bottom-btn active" onclick="show('redeem')">Redeem</button>
+    <button class="bottom-btn" onclick="show('leaderboard')">Leaderboard</button>
+    <button class="bottom-btn" onclick="show('settings')">Settings</button>
+  </div>
+</div>
+
+<div class="container hidden" id="leaderboard">
+  <h2>Leaderboard</h2>
+  <div class="card" id="leaderboard-list" style="padding:0;">
+    <!-- leaderboard rows will be inserted here -->
+  </div>
+  <div class="bottom-bar">
+    <button class="bottom-btn" onclick="show('dashboard')">Home</button>
+    <button class="bottom-btn" onclick="show('redeem')">Redeem</button>
+    <button class="bottom-btn active" onclick="show('leaderboard')">Leaderboard</button>
+    <button class="bottom-btn" onclick="show('settings')">Settings</button>
+  </div>
+</div>
+
+<div class="container hidden" id="settings">
+  <h2>Settings</h2>
+  <button class="btn-gray" onclick="show('dashboard')">⬅ Back</button>
+
+  <div class="card">
+    <div class="settings-option" onclick="showChangePassword()">
+      <span>Change Password</span>
+      <span>➡️</span>
+    </div>
+    <div class="settings-option">
+      <span>Notifications</span>
+      <input type="checkbox" id="notifToggle">
+    </div>
+    <div class="settings-option">
+      <button class="btn-red" onclick="deleteAccount()">Delete Account</button>
+    </div>
+    <div class="settings-option">
+      <button class="btn-red" onclick="confirmLogout()">Log out</button>
+    </div>
+  </div>
+</div>
+
+<div class="container hidden" id="changePassword">
+  <h2>Change Password</h2>
+  <input id="oldPw" type="password" placeholder="Enter old password">
+  <input id="newPw" type="password" placeholder="Enter new password">
+  <button class="btn-green" onclick="submitChangePassword()">Confirm</button>
+  <button class="btn-gray" onclick="show('settings')">Back</button>
+</div>
+
+<script>
+let userData = JSON.parse(localStorage.getItem('rp_users') || '{}');
+let currentUser = localStorage.getItem('rp_current');
+
+document.getElementById('username').addEventListener('input', function(e) {
+  let val = e.target.value;
+  if (val.length > 0) {
+    e.target.value = val.charAt(0).toUpperCase() + val.slice(1);
+  }
+});
+
+document.getElementById('phone').addEventListener('input', function(e) {
+  e.target.value = e.target.value.replace(/[^0-9]/g, '');
+});
+
+document.getElementById('password').addEventListener('input', function(e) {
+  e.target.value = e.target.value.replace(/[^0-9]/g, '');
+});
+
+window.addEventListener('load', () => {
+  const loading = document.getElementById('loading');
+  
+  setTimeout(() => {
+    loading.classList.add('fade-out');
+    setTimeout(() => {
+      loading.style.display = 'none';
+      
+      if (currentUser && userData[currentUser]) {
+        show('dashboard');
+      } else {
+        show('login');
+      }
+    }, 400);
+  }, 2000);
+});
+
+function saveData() {
+  localStorage.setItem('rp_users', JSON.stringify(userData));
+}
+
+function handleLogin() {
+  const phone = document.getElementById('phone').value.trim();
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const referral = document.getElementById('referral').value.trim();
+  const promo = document.getElementById('promo').value.trim();
+
+  if (!phone || phone.length !== 11 || !/^\d{11}$/.test(phone)) {
+    alert('Please enter a valid 11-digit phone number');
+    return;
+  }
+  if (!username) {
+    alert('Please enter a username');
+    return;
+  }
+  if (!password || password.length !== 4 || !/^\d{4}$/.test(password)) {
+    alert('Password must be exactly 4 digits');
+    return;
+  }
+
+  const userKey = phone;
+
+  let isNewUser = !userData[userKey];
+
+  if (isNewUser) {
+    const referralCode = Math.floor(1000 + Math.random()*9000);
+    userData[userKey] = {
+      username: username,
+      password: password,
+      points: 0,
+      lastDaily: 0,
+      referralCode: referralCode,
+      promoCode: promo || '',
+      usedPromoBonus: false
+    };
+  }
+
+  if (userData[userKey].password !== password) {
+    alert('Wrong password');
+    return;
+  }
+
+  if (isNewUser && promo === "LUDDY1" && !userData[userKey].usedPromoBonus) {
+    userData[userKey].points += 20000;
+    userData[userKey].usedPromoBonus = true;
+    userData[userKey].promoCode = promo;
+    alert('Promo code LUDDY1 accepted! +20,000 points added 🎉');
+  }
+
+  currentUser = userKey;
+  localStorage.setItem('rp_current', userKey);
+  saveData();
+  show('dashboard');
+  updatePoints();
+}
+
+function show(pageId) {
+  document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
+  document.getElementById(pageId).classList.remove('hidden');
+
+  document.querySelectorAll('.bottom-btn').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.querySelector(`.bottom-btn[onclick="show('${pageId}')"]`);
+  if (activeBtn) activeBtn.classList.add('active');
+
+  if (pageId === 'dashboard') {
+    updatePoints();
+  }
+  else if (pageId === 'leaderboard') {
+    updateLeaderboard();
+  }
+}
+
+function updatePoints() {
+  if (!currentUser) return;
+  document.getElementById('pointsDisplay').textContent = userData[currentUser].points.toLocaleString();
+}
+
+function getOrdinal(n) {
+  let suffix = 'th';
+  if (n === 1) suffix = 'st';
+  else if (n === 2) suffix = 'nd';
+  else if (n === 3) suffix = 'rd';
+  return n + suffix;
+}
+
+function updateLeaderboard() {
+  const container = document.getElementById('leaderboard-list');
+  if (!container) return;
+
+  const users = Object.entries(userData).map(([phone, data]) => ({
+    username: data.username || 'User',
+    points: data.points || 0
+  }));
+
+  users.sort((a, b) => b.points - a.points);
+
+  const top10 = users.slice(0, 10);
+
+  let html = '';
+
+  for (let i = 1; i <= 10; i++) {
+    const rank = i;
+    const user = top10[i - 1];
+
+    let namePart = user ? user.username : '———';
+    let pointsPart = user ? user.points.toLocaleString() + ' pts' : '— pts';
+
+    const colorStyle = user ? 'color:#111;' : 'color:#aaa;';
+
+    html += `
+      <div style="padding:14px 16px; border-bottom:1px solid #eee; ${colorStyle} display:flex; justify-content:space-between; align-items:center; font-size:15px;">
+        <div style="font-weight:600; min-width:110px;">
+          ${getOrdinal(rank)} rank :
+        </div>
+        <div style="flex:1; padding:0 12px;">
+          ${namePart}
+        </div>
+        <div style="font-weight:bold; white-space:nowrap;">
+          ${pointsPart}
+        </div>
+      </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+function claimDaily() {
+  if (!currentUser) return;
+  const now = Date.now();
+  const last = userData[currentUser].lastDaily || 0;
+  if (now - last < 24*60*60*1000) { 
+    alert("Come back tomorrow!"); 
+    return; 
+  }
+  userData[currentUser].points += 100;
+  userData[currentUser].lastDaily = now;
+  saveData();
+  updatePoints();
+  document.getElementById('msg').textContent = 'Daily bonus claimed! +100';
+
+  if (document.getElementById('leaderboard').classList.contains('hidden') === false) {
+    updateLeaderboard();
+  }
+}
+
+function watchAdTask() {
+  if (!currentUser) return;
+  document.getElementById('msg').textContent = 'NO AD AVAILABLE';
+}
+
+function referEarn() {
+  if (!currentUser) return;
+  const code = userData[currentUser].referralCode;
+  document.getElementById('msg').textContent = `Your referral code: ${code} (share with friends to earn points)`;
+}
+
+function enterPromo() {
+  const code = prompt('Enter promo code:');
+  if (!code || code.trim() === '') return;
+  alert('Invalid Promo Code');
+}
+
+function tryRedeem(cost){
+  if(!currentUser) return;
+
+  if(userData[currentUser].points < cost){
+    alert('Not enough points'); 
+    return; 
+  }
+
+  if(!confirm(`Use \( {cost.toLocaleString()} points for ₦ \){(cost/100).toLocaleString()} airtime?`)) return;
+
+  userData[currentUser].points -= cost;
+  saveData();
+  updatePoints();
+  document.getElementById('msg').textContent = 'REQUEST SENT, WAITING FOR APPROVAL';
+
+  const myNumber = '2347035959671';
+  const userNumber = currentUser;
+  const amount = (cost / 100).toLocaleString();
+
+  const message = `New redeem request from Reward Pro app\nSender: \( {userNumber}\nAmount: ₦ \){amount}`;
+
+  const waLink = `https://wa.me/\( {myNumber}?text= \){encodeURIComponent(message)}`;
+
+  window.open(waLink, '_blank');
+
+  if (document.getElementById('leaderboard').classList.contains('hidden') === false) {
+    updateLeaderboard();
+  }
+}
+
+function toggleShowPw() {
+  const pw = document.getElementById('password');
+  pw.type = pw.type === 'password' ? 'text' : 'password';
+}
+
+function showChangePassword() { show('changePassword'); }
+function submitChangePassword() { show('settings'); alert('Password change feature not available yet.'); }
+
+function deleteAccount() {
+  if (confirm('Delete your account? This will permanently delete all your data and points. You can register again afterward.')) {
+    if (currentUser && userData[currentUser]) {
+      delete userData[currentUser];
+      saveData();
+    }
+    localStorage.removeItem('rp_current');
+    location.reload();
+  }
+}
+
+function confirmLogout() {
+  if (confirm('Log out now?')) {
+    localStorage.removeItem('rp_current');
+    location.reload();
+  }
+}
+
+function openSupport() {
+  document.getElementById("support-overlay").style.display = "flex";
+  supportChat.innerHTML = "";
+  bot("Hello 👋 Please choose an option below.");
+  showMenu();
+  supportInput.focus();
+}
+
+function closeSupport() {
+  document.getElementById("support-overlay").style.display = "none";
+}
+
+const supportChat = document.getElementById("support-chat");
+const supportInput = document.getElementById("support-input");
+
+function bot(text) {
+  supportChat.innerHTML += `<div class="bot-msg">${text}</div>`;
+  supportChat.scrollTop = supportChat.scrollHeight;
+}
+
+function user(text) {
+  supportChat.innerHTML += `<div class="user-msg">${text}</div>`;
+  supportChat.scrollTop = supportChat.scrollHeight;
+}
+
+function typing(callback) {
+  supportChat.innerHTML += `
+  <div class="typing" id="typing">
+    <span></span><span></span><span></span>
+  </div>`;
+  supportChat.scrollTop = supportChat.scrollHeight;
+  setTimeout(() => {
+    document.getElementById("typing")?.remove();
+    callback();
+  }, 1000);
+}
+
+function disableOldMenus() {
+  document.querySelectorAll("#support-overlay .menu").forEach(menu => {
+    menu.classList.add("disabled");
+  });
+}
+
+function showMenu() {
+  disableOldMenus();
+  supportChat.innerHTML += `
+  <div class="menu">
+    <button onclick="selectOption(1)">1️⃣ What is Reward Pro</button>
+    <button onclick="selectOption(2)">2️⃣ What are points used for?</button>
+    <button onclick="selectOption(3)">3️⃣ Redeem confirmation time</button>
+    <button onclick="selectOption(4)">4️⃣ Contact human agent</button>
+  </div>`;
+  supportChat.scrollTop = supportChat.scrollHeight;
+}
+
+function showBackMenu() {
+  disableOldMenus();
+  supportChat.innerHTML += `
+  <div class="menu">
+    <button onclick="showMenu()">1️⃣ Menu</button>
+  </div>`;
+  supportChat.scrollTop = supportChat.scrollHeight;
+}
+
+function selectOption(num) {
+  user(num);
+  respond(num);
+}
+
+function sendSupportMessage() {
+  let val = supportInput.value.trim();
+  if (!val) return;
+  user(val);
+  respond(val);
+  supportInput.value = "";
+  supportInput.focus();
+}
+
+supportInput.addEventListener("keypress", function(e) {
+  if (e.key === "Enter") sendSupportMessage();
+});
+
+function respond(val) {
+  typing(() => {
+    if (val == "1") {
+      bot("Reward Pro is an online app where you claim daily points bonus to redeem them for airtime.");
+      showBackMenu();
+    }
+    else if (val == "2") {
+      bot("They can be redeemed to airtime.");
+      showBackMenu();
+    }
+    else if (val == "3") {
+      bot("You should wait about 24 hours for redeem confirmation.");
+      showBackMenu();
+    }
+    else if (val == "4") {
+      bot(`<a href="https://wa.me/2347035959671" target="_blank" style="color:#25d366;font-weight:bold;">Chat with a human agent on WhatsApp</a>`);
+      showBackMenu();
+    }
+    else {
+      bot("Invalid input. Please type only 1, 2, 3 or 4.");
+    }
+  });
+}
+</script>
+</body>
+</html>
